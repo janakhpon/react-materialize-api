@@ -24,8 +24,7 @@ const UserSchema = new Schema({
     type: String
   },
   specializations: {
-    type: [String],
-    required: true
+    type: [String]
   },
   bio:{
     type: String

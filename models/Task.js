@@ -16,7 +16,7 @@ const Taskschema = new Schema({
     required: true
   },
   deadline: {
-    type: Date
+    type: String
   },
   date: {
     type: Date,
