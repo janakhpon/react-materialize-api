@@ -59,7 +59,7 @@ router.post("/register", (req, res) => {
 // @route   POST api/profile
 // @desc    Create or edit user profile
 // @access  Private
-router.post("/update/:userid", (req, res) => {
+router.post("/update", (req, res) => {
   // Get fields
   const dataFields = {};
   if (req.body.cover) dataFields.cover = req.body.cover;
@@ -71,11 +71,11 @@ router.post("/update/:userid", (req, res) => {
   }
   if (req.body.bio) dataFields.bio = req.body.bio;
 
-  User.findOne({ _id: req.params.userid }).then(user => {
+  User.findOne({ _id: req.user.id }).then(user => {
     if (user) {
       // Update
       User.findOneAndUpdate(
-        { _id: req.params.userid },
+        { _id: req.user.id },
         { $set: dataFields },
         { new: true }
       ).then(user => res.json(user));
@@ -120,7 +120,7 @@ router.post("/login", (req, res) => {
         jwt.sign(
           payload,
           keys.secretOrKey,
-          { expiresIn: 3600 },
+          { expiresIn: 7200 },
           (err, token) => {
             res.json({
               success: true,
@@ -136,16 +136,17 @@ router.post("/login", (req, res) => {
   });
 });
 
-
-
 router.delete(
-  "/delete/:userid", (req, res) => {
-    User.deleteOne({ _id: req.params.userid }).then(res.json({ "code": "Deleted" })).catch(function (err) {
-      res.json({"code":err})
-    })
+  "/delete",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    User.deleteOne({ _id: req.user.id })
+      .then(res.json({ code: "Deleted" }))
+      .catch(function(err) {
+        res.json({ code: err });
+      });
   }
-
-)
+);
 
 // @route   GET api/users/current
 // @desc    Return current user
